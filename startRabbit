@@ -1,0 +1,6 @@
+invoke-rc.d rabbitmq-server stop/start/etc
+
+sudo rabbitmqctl status
+
+# Enable Web access
+rabbitmq-plugins enable rabbitmq_management
