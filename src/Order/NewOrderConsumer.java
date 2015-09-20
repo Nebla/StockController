@@ -48,9 +48,7 @@ public class NewOrderConsumer extends DefaultConsumer {
     }
 
     public void sendAuditory(Order order) throws IOException {
-        // Here we send a formatted message so the auditory log can register
-        String message = order.getOrderId() + " - " + order.getProductId() + ":" + order.getProductQty();
-        auditoryChannel.basicPublish("", auditoryQueueName, null, message.getBytes());
+        auditoryChannel.basicPublish("", auditoryQueueName, null, SerializationUtils.serialize(order));
     }
 
     public Boolean checkStock(Order newOrder) throws IOException {
@@ -99,8 +97,13 @@ public class NewOrderConsumer extends DefaultConsumer {
         return shouldUpdate;
     }
 
-    public void saveOrderStatus(Order newOrder) throws IOException {
-        Integer orderFileId = Integer.parseInt(newOrder.getOrderId())%10;
+    public void saveOrderStatus(Order newOrder) throws IOException, StockControllerException {
+        String[] propertiesNames = {"orderFiles"};
+        Map<String, String> propertiesValues = Util.getProperties(propertiesNames);
+
+        Integer files = Integer.parseInt(propertiesValues.get("orderFiles"));
+
+        Integer orderFileId = Integer.parseInt(newOrder.getOrderId())%files;
         String orderFileName = "Order" + orderFileId;
 
         File file = new File(orderFileName);
@@ -108,10 +111,11 @@ public class NewOrderConsumer extends DefaultConsumer {
         FileLock lock = channel.lock();
 
         // We just need to append the new order status, as it's a new one
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
-        String orderMessage = newOrder.getOrderId() + ":" + newOrder.getOrderStatus();
-        out.println(orderMessage);
-        out.close();
+        //PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file,true)));
+        BufferedWriter bf =new BufferedWriter(new FileWriter(file,true));
+        String orderMessage = newOrder.getOrderId() + ":" + newOrder.getOrderStatus() + System.lineSeparator();
+        bf.write(orderMessage);
+        bf.close();
 
         if (lock != null) lock.release();
         channel.close();
@@ -134,7 +138,10 @@ public class NewOrderConsumer extends DefaultConsumer {
 
             long deliveryTag = envelope.getDeliveryTag();
             getChannel().basicAck(deliveryTag, true);
+
         }  catch (IOException e) {
+            e.printStackTrace();
+        } catch (StockControllerException e) {
             e.printStackTrace();
         }
     }
