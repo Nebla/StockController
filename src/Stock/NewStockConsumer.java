@@ -38,7 +38,7 @@ public class NewStockConsumer extends DefaultConsumer {
             BufferedReader br = new BufferedReader(fr);
 
             String replaceString = "";
-            NewStock message = SerializationUtils.deserialize(bytes);
+            Stock message = SerializationUtils.deserialize(bytes);
 
             Boolean found = false;
             Integer currentQty = 0;
@@ -46,7 +46,7 @@ public class NewStockConsumer extends DefaultConsumer {
                 String[] productInfo = line.split(":");
                 if ((productInfo.length == 2) && !found) {
                     String productName = productInfo[0];
-                    if (productName.equals(message.getProductName())) {
+                    if (productName.equals(message.getProductId())) {
                         replaceString = line;
                         currentQty = Integer.parseInt(productInfo[1]);
                         found = true;
@@ -57,10 +57,10 @@ public class NewStockConsumer extends DefaultConsumer {
 
             if (!found) {
                 // Add the new product
-                totalStr += (message.getProductName() + ":" + message.getProductQty() + "\n");
+                totalStr += (message.getProductId() + ":" + message.getProductQty() + "\n");
             } else {
                 // Get the amount of the product and add the new ones
-                String newValue = message.getProductName() + ":" + (currentQty + message.getProductQty());
+                String newValue = message.getProductId() + ":" + (currentQty + message.getProductQty());
                 totalStr = totalStr.replaceAll(replaceString, newValue);
             }
 

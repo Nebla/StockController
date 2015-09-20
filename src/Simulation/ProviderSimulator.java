@@ -1,6 +1,6 @@
 package Simulation;
 
-import Stock.NewStock;
+import Stock.Stock;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -17,10 +17,8 @@ public class ProviderSimulator {
 
     public static void main(String[] args) throws IOException, TimeoutException {
 
-        System.out.println("Hello World!");
-
         Properties prop = new Properties();
-        InputStream input = null;
+        InputStream input;
 
         String configFile = "Config/Config.properties";
 
@@ -43,7 +41,7 @@ public class ProviderSimulator {
             System.out.print("Enter Product: ");
             String message = br.readLine();
 
-            NewStock stockMessage = new NewStock(message, 10);
+            Stock stockMessage = new Stock(message, 10);
 
             channel.basicPublish("", queueName, null, SerializationUtils.serialize(stockMessage));
         }

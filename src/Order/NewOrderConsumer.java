@@ -1,11 +1,9 @@
 package Order;
 
-import Stock.NewStock;
 import Util.Util;
 import Error.StockControllerException;
 
 import com.rabbitmq.client.*;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
@@ -21,6 +19,7 @@ public class NewOrderConsumer extends DefaultConsumer {
 
     private Channel auditoryChannel;
     private String auditoryQueueName;
+    private Integer numberOrderFiles;
 
     public NewOrderConsumer(Channel channel) {
         super(channel);
@@ -28,8 +27,10 @@ public class NewOrderConsumer extends DefaultConsumer {
 
     public void init() throws StockControllerException {
         try {
-            String[] propertiesNames = {"queueHost", "auditoryQueueName"};
+            String[] propertiesNames = {"queueHost", "auditoryQueueName", "orderFiles"};
             Map<String, String> propertiesValues = Util.getProperties(propertiesNames);
+
+            numberOrderFiles = Integer.parseInt(propertiesValues.get("orderFiles"));
 
             String queueHost = propertiesValues.get("queueHost");
             auditoryQueueName = propertiesValues.get("auditoryQueueName");
@@ -98,12 +99,9 @@ public class NewOrderConsumer extends DefaultConsumer {
     }
 
     public void saveOrderStatus(Order newOrder) throws IOException, StockControllerException {
-        String[] propertiesNames = {"orderFiles"};
-        Map<String, String> propertiesValues = Util.getProperties(propertiesNames);
 
-        Integer files = Integer.parseInt(propertiesValues.get("orderFiles"));
-
-        Integer orderFileId = Integer.parseInt(newOrder.getOrderId())%files;
+        // Get the file the order is logged
+        Integer orderFileId = Integer.parseInt(newOrder.getOrderId())%numberOrderFiles;
         String orderFileName = "Order" + orderFileId;
 
         File file = new File(orderFileName);
