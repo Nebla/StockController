@@ -1,7 +1,5 @@
 package Stock;
 
-import Log.OrderAuditoryConsumer;
-
 import Error.StockControllerException;
 
 import Util.Util;
@@ -11,7 +9,6 @@ import com.rabbitmq.client.ConnectionFactory;
 
 import java.io.*;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -39,9 +36,9 @@ public class StockManager {
             Connection connection = factory.newConnection();
             Channel channel = connection.createChannel();
             channel.queueDeclare(queueName, false, false, false, null);
+
             NewStockConsumer consumer = new NewStockConsumer(channel);
-            boolean autoAck = false;
-            channel.basicConsume(queueName, autoAck, consumer);
+            channel.basicConsume(queueName, false, consumer);
         }  catch (TimeoutException e) {
             throw new StockControllerException("There was a timeout while trying to connect to queue server");
         } catch (IOException e) {

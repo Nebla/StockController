@@ -39,22 +39,27 @@ public class OrderAuditoryConsumer extends DefaultConsumer {
     }
 
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) throws IOException {
+        try {
+            Order order = SerializationUtils.deserialize(bytes);
 
-        Order order = SerializationUtils.deserialize(bytes);
+            String orderMessage = "Order Id: " + order.getOrderId() + " - Prodcuct Id: " + order.getProductId() + " Quantity: " + order.getProductQty();
+            String stringDate = dateFormatter.format(new Date());
+            String logEntrance = stringDate + " " + orderMessage;
+            bufferWriter.write(logEntrance);
+            bufferWriter.newLine();
 
-        String orderMessage = "Order Id: " + order.getOrderId() + " - Prodcuct Id: " + order.getProductId() + " Quantity: " + order.getProductQty();
-        String stringDate = dateFormatter.format(new Date());
-        String logEntrance = stringDate + " " + orderMessage;
-        bufferWriter.write(logEntrance);
-        bufferWriter.newLine();
+            if (((new Date().getTime() - lastFlush.getTime()) / 1000) > flushInterval) {
+                bufferWriter.flush();
+                lastFlush = new Date();
+            }
 
-        if (((new Date().getTime() - lastFlush.getTime()) / 1000) > flushInterval) {
-            bufferWriter.flush();
-            lastFlush = new Date();
+            long deliveryTag = envelope.getDeliveryTag();
+            getChannel().basicAck(deliveryTag, true);
         }
-
-        long deliveryTag = envelope.getDeliveryTag();
-        getChannel().basicAck(deliveryTag, true);
+        finally {
+            bufferWriter.flush();
+            bufferWriter.close();
+        }
     }
 
     public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {

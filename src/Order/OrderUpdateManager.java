@@ -5,6 +5,7 @@ import Util.Util;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DefaultConsumer;
 
 import java.io.IOException;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeoutException;
  * Created by adrian on 20/09/15.
  */
 public class OrderUpdateManager {
+
     public static void main(String[] argv) {
         try {
             receiveAndUpdateOrders();
