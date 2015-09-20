@@ -37,9 +37,9 @@ public class OrderAuditoryConsumer extends DefaultConsumer {
     }
 
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) throws IOException {
-        String orderId = new String(bytes, "UTF-8");
+        String orderMessage = new String(bytes, "UTF-8");
         String stringDate = dateFormatter.format(new Date());
-        String logEntrance = stringDate + " - " + orderId;
+        String logEntrance = stringDate + " " + orderMessage;
         bufferWriter.write(logEntrance);
         bufferWriter.newLine();
 

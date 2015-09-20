@@ -37,12 +37,11 @@ public class ProviderSimulator {
 
         channel.queueDeclare(queueName, false, false, false, null);
 
-        String message = "A";
-        while (!message.equals("C")) {
+        while (! Thread.interrupted()) {
 
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Enter String");
-            message = br.readLine();
+            System.out.print("Enter Product: ");
+            String message = br.readLine();
 
             NewStock stockMessage = new NewStock(message, 10);
 

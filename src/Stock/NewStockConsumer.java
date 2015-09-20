@@ -68,17 +68,15 @@ public class NewStockConsumer extends DefaultConsumer {
             fw.write(totalStr);
             fw.close();
 
-            // Release the lock - if it is not null!
             if (lock != null) {
                 lock.release();
             }
-
-            // Close the file
             channel.close();
 
             long deliveryTag = envelope.getDeliveryTag();
             getChannel().basicAck(deliveryTag, true);
         }  catch (IOException e) {
+            // The handleDelivery method can't throw an exception
             e.printStackTrace();
         }
     }

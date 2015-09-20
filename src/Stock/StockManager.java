@@ -42,10 +42,10 @@ public class StockManager {
             NewStockConsumer consumer = new NewStockConsumer(channel);
             boolean autoAck = false;
             channel.basicConsume(queueName, autoAck, consumer);
+        }  catch (TimeoutException e) {
+            throw new StockControllerException("There was a timeout while trying to connect to queue server");
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
+            throw new StockControllerException("There was a problem while trying to connect to the I/O device");
         }
     }
 }

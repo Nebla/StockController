@@ -37,13 +37,15 @@ public class NewOrderManager {
             Connection connection = factory.newConnection();
             Channel channel = connection.createChannel();
             channel.queueDeclare(queueName, false, false, false, null);
-            NewOroderConsumer consumer = new NewOroderConsumer(channel);
+
+            NewOrderConsumer consumer = new NewOrderConsumer(channel);
+            consumer.init();
             boolean autoAck = false;
             channel.basicConsume(queueName, autoAck, consumer);
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (TimeoutException e) {
-            e.printStackTrace();
+            throw new StockControllerException("There was a timeout while trying to connect to queue server");
+        } catch (IOException e) {
+            throw new StockControllerException("There was a problem while trying to connect to the I/O device");
         }
     }
 }

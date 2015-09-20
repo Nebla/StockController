@@ -26,7 +26,7 @@ public class Util {
 
             // Use the file channel to create a lock on the file.
             // This method blocks until it can retrieve the lock.
-            lock = channel.lock();
+            lock = channel.lock(0L, Long.MAX_VALUE, true);
 
             HashMap<String, String> returnValue = new HashMap<String, String>();
 
