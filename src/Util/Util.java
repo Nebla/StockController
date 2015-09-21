@@ -14,13 +14,12 @@ import java.util.Properties;
  */
 public class Util {
 
-    public static Map<String, String> getProperties(String[] keys) throws StockControllerException {
+    public static Map<String, String> getProperties(String filename, String[] keys) throws StockControllerException {
         FileLock lock = null;
         FileChannel channel = null;
 
         try {
-            String configFile = "Config/Config.properties";
-            File file = new File(configFile);
+            File file = new File(filename);
 
             channel = new RandomAccessFile(file, "r").getChannel();
 
@@ -34,10 +33,10 @@ public class Util {
             InputStream input = null;
 
             if (!file.exists()) {
-                System.err.println("Config file " + configFile + " missing");
+                System.err.println("Config file " + filename + " missing");
                 throw new StockControllerException("Missing configuration file");
             } else {
-                input = new FileInputStream(configFile);
+                input = new FileInputStream(filename);
                 prop.load(input);
             }
 
@@ -60,5 +59,13 @@ public class Util {
         } catch (IOException e) {
             throw new StockControllerException("I/O Exception");
         }
+    }
+
+    public static Map<String, String> getProperties(String[] keys) throws StockControllerException {
+        return getProperties("Config/Config.properties", keys);
+    }
+
+    public static Map<String, String> getSimulationProperties(String[] keys) throws StockControllerException {
+        return getProperties("Config/Simulation.properties", keys);
     }
 }

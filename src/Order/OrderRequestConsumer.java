@@ -4,9 +4,10 @@ import Util.Util;
 import com.rabbitmq.client.*;
 
 import Error.StockControllerException;
-import org.apache.commons.lang3.SerializationUtils;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
@@ -17,6 +18,7 @@ public class OrderRequestConsumer extends DefaultConsumer {
 
     private Channel responseChannel;
     private String responseQueueName;
+    private Integer numberOrderFiles;
 
     public OrderRequestConsumer(Channel channel) {
         super(channel);
@@ -24,8 +26,10 @@ public class OrderRequestConsumer extends DefaultConsumer {
 
     public void init() throws StockControllerException {
         try {
-            String[] propertiesNames = {"queueHost", "orderResponseQueueName"};
+            String[] propertiesNames = {"queueHost", "orderResponseQueueName","orderFiles"};
             Map<String, String> propertiesValues = Util.getProperties(propertiesNames);
+
+            numberOrderFiles = Integer.parseInt(propertiesValues.get("orderFiles"));
 
             String queueHost = propertiesValues.get("queueHost");
             responseQueueName = propertiesValues.get("orderResponseQueueName");
@@ -45,8 +49,10 @@ public class OrderRequestConsumer extends DefaultConsumer {
 
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) {
         try {
-            Order order = SerializationUtils.deserialize(bytes);
-            this.getOrderStatus(order);
+            String orderId = new String(bytes);
+            String status = this.getOrderStatus(orderId);
+
+            this.sendStatus(orderId, status);
 
             long deliveryTag = envelope.getDeliveryTag();
             getChannel().basicAck(deliveryTag, true);
@@ -57,8 +63,47 @@ public class OrderRequestConsumer extends DefaultConsumer {
         }
     }
 
-    public void getOrderStatus (Order order) throws StockControllerException {
-        
+    public void sendStatus(String orderId, String status) throws StockControllerException {
+        try {
+            String message = "Order " + orderId + " " + status;
+            responseChannel.basicPublish("", responseQueueName, null, message.getBytes());
+        } catch (IOException e) {
+            throw new StockControllerException("I/O Exception");
+        }
+    }
+
+    public String getOrderStatus (String orderId) throws StockControllerException {
+        try {
+            // Get the file the order is logged
+            Integer orderFileId = Integer.parseInt(orderId) % numberOrderFiles;
+            String orderFileName = "Order" + orderFileId;
+
+            File file = new File(orderFileName);
+            FileChannel channel = new RandomAccessFile(file, "r").getChannel();
+            FileLock lock = channel.lock(0L, Long.MAX_VALUE, true);
+
+            String line;
+            BufferedReader br = new BufferedReader(new FileReader(file));
+
+            Boolean found = false;
+            String status = "";
+            while (((line = br.readLine()) != null) && !found) {
+                String[] orderInfo = line.split(":");
+                String orderName = orderInfo[0];
+                if (orderName.equals(orderId)) {
+                    status = orderInfo[1];
+                    found = true;
+                }
+            }
+            if (lock != null) lock.release();
+            channel.close();
+
+            return status;
+        } catch (FileNotFoundException e) {
+            throw new StockControllerException("The file where the order is logger doesn't exists");
+        } catch (IOException e) {
+            throw new StockControllerException("I/O Exception");
+        }
 
     }
 }

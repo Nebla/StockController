@@ -6,6 +6,7 @@ import Util.Util;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
@@ -34,25 +35,34 @@ public class OrderSimulator {
 
         channel.queueDeclare(queueName, false, false, false, null);
 
-        Integer orderId = 0;
+        String[] simulationPropertiesName = {"maxNumberOfOrders","maxOrderBurst","interBurstsInterval"};
+        Map<String, String> simulationValues = Util.getSimulationProperties(simulationPropertiesName);
+        Integer maxOrders = Integer.parseInt(simulationValues.get("maxNumberOfOrders"));
+        Integer orderBurst = Integer.parseInt(simulationValues.get("maxOrderBurst"));
+        Integer burstsInterval = Integer.parseInt(simulationValues.get("interBurstsInterval"));
 
-        while (! Thread.interrupted()) {
+        Integer sentOrders = 0;
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Enter Product: ");
-            String product = br.readLine();
+        while (sentOrders < maxOrders) {
 
-            Random generator = new Random();
-            Integer qty = generator.nextInt(5) + 1;
+            for (int i = 0; i < orderBurst; ++i) {
+                Integer orderId = sentOrders;
+                sentOrders++;
+                Random generator = new Random();
+                Integer qty = generator.nextInt(5) + 1;
+                String product = RandomStringUtils.randomAlphabetic(1);
+                Order order = new Order(orderId.toString(), product, qty);
+                System.out.println("Creating order " + order.getOrderId() + " - " + order.getProductId()+ ":" + order.getProductQty());
+                channel.basicPublish("", queueName, null, SerializationUtils.serialize(order));
+            }
 
-            Order order = new Order(orderId.toString(), product, qty);
-
-            channel.basicPublish("", queueName, null, SerializationUtils.serialize(order));
-
-            orderId++;
+            try {
+                Thread.sleep(burstsInterval*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
-
 }
 
 

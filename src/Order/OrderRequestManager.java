@@ -1,6 +1,5 @@
 package Order;
 
-import Common.CommonQueueManager;
 import Util.Util;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;

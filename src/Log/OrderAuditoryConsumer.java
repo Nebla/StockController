@@ -39,7 +39,7 @@ public class OrderAuditoryConsumer extends DefaultConsumer {
     }
 
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) throws IOException {
-        try {
+
             Order order = SerializationUtils.deserialize(bytes);
 
             String orderMessage = "Order Id: " + order.getOrderId() + " - Prodcuct Id: " + order.getProductId() + " Quantity: " + order.getProductQty();
@@ -55,11 +55,11 @@ public class OrderAuditoryConsumer extends DefaultConsumer {
 
             long deliveryTag = envelope.getDeliveryTag();
             getChannel().basicAck(deliveryTag, true);
-        }
-        finally {
+
+        /*finally {
             bufferWriter.flush();
             bufferWriter.close();
-        }
+        }*/
     }
 
     public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {

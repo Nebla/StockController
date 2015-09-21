@@ -1,48 +1,55 @@
 package Simulation;
 
+import Util.Util;
 import Order.Order;
+import Error.StockControllerException;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
+import org.apache.commons.lang3.SerializationUtils;
 
 /**
  * Created by adrian on 16/09/15.
  */
 public class EmployeeSimulator {
 
-    public static void main(String[] args) throws IOException, TimeoutException {
-        Properties prop = new Properties();
-        InputStream input;
+    public static void main(String[] args) throws IOException, TimeoutException, StockControllerException {
 
-        String configFile = "Config/Config.properties";
-
-        input = new FileInputStream(configFile);
-        prop.load(input);
-
-        String queueHost = prop.getProperty("queueHost");
-        String queueName = prop.getProperty("updateOrderQueueName");
+        String[] propertiesName = {"queueHost","updateOrderQueueName"};
+        Map<String, String> queueNames = Util.getProperties(propertiesName);
+        String queueHost = queueNames.get("queueHost");
+        String queueName = queueNames.get("updateOrderQueueName");
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(queueHost);
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-
         channel.queueDeclare(queueName, false, false, false, null);
 
-        while (! Thread.interrupted()) {
+        String[] simulationPropertiesName = {"maxNumberOfOrders","deliverInterval"};
+        Map<String, String> simulationValues = Util.getSimulationProperties(simulationPropertiesName);
+        Integer deliverInterval = Integer.parseInt(simulationValues.get("deliverInterval"));
+        Integer maxOrders = Integer.parseInt(simulationValues.get("maxNumberOfOrders"));
+        Integer deliveredOrders = 0;
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Enter order to update: ");
-            String message = br.readLine();
-            Order order = new Order(message,"A",10);
+        while (deliveredOrders < maxOrders) {
+            Order order = new Order(deliveredOrders.toString(),"",0);
             order.updateStatus(Order.OrderStatus.DELIVERED);
+
+            System.out.println("Delivering: "+deliveredOrders);
             channel.basicPublish("", queueName, null, SerializationUtils.serialize(order));
+            deliveredOrders++;
+            try {
+                Thread.sleep(deliverInterval*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
-
 }
