@@ -1,6 +1,7 @@
 package Log;
 
 import Order.Order;
+
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -43,12 +44,10 @@ public class OrderAuditoryConsumer extends DefaultConsumer {
         System.out.println("Logging: "+logEntrance);
         bufferWriter.write(logEntrance);
         bufferWriter.newLine();
-
         bufferWriter.flush();
 
         long deliveryTag = envelope.getDeliveryTag();
         getChannel().basicAck(deliveryTag, true);
-
     }
 
     public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {

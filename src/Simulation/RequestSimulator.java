@@ -1,17 +1,17 @@
 package Simulation;
 
-import Order.Order;
 import Util.Util;
+import Order.Order;
 import Order.OrderStatusMessage;
 import Error.StockControllerException;
 
 import com.rabbitmq.client.*;
-import org.apache.commons.lang3.SerializationUtils;
 
-import java.util.ArrayList;
 import java.util.Map;
+import java.util.ArrayList;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+import org.apache.commons.lang3.SerializationUtils;
 
 /**
  * Created by adrian on 20/09/15.

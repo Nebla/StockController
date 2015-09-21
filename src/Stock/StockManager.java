@@ -1,8 +1,8 @@
 package Stock;
 
+import Util.Util;
 import Error.StockControllerException;
 
-import Util.Util;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;

@@ -3,11 +3,11 @@ package Util;
 import Error.StockControllerException;
 
 import java.io.*;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Properties;
+import java.nio.channels.FileLock;
+import java.nio.channels.FileChannel;
 
 /**
  * Created by adrian on 19/09/15.
@@ -20,11 +20,7 @@ public class Util {
 
         try {
             File file = new File(filename);
-
             channel = new RandomAccessFile(file, "r").getChannel();
-
-            // Use the file channel to create a lock on the file.
-            // This method blocks until it can retrieve the lock.
             lock = channel.lock(0L, Long.MAX_VALUE, true);
 
             HashMap<String, String> returnValue = new HashMap<String, String>();
@@ -44,12 +40,7 @@ public class Util {
                 returnValue.put(key, prop.getProperty(key));
             }
 
-            // Release the lock - if it is not null!
-            if (lock != null) {
-                lock.release();
-            }
-
-            // Close the file
+            if (lock != null) lock.release();
             channel.close();
 
             return returnValue;

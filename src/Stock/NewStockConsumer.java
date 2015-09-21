@@ -2,13 +2,13 @@ package Stock;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
-import org.apache.commons.lang3.SerializationUtils;
+import com.rabbitmq.client.DefaultConsumer;
 
 import java.io.*;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.channels.FileChannel;
+import org.apache.commons.lang3.SerializationUtils;
 
 /**
  * Created by adrian on 19/09/15.
@@ -22,23 +22,19 @@ public class NewStockConsumer extends DefaultConsumer {
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) {
 
         try {
-            // Get a file channel for the file
+            Stock message = SerializationUtils.deserialize(bytes);
+
             File file = new File("StockFile");
             FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
 
-            // Use the file channel to create a lock on the file.
-            // This method blocks until it can retrieve the lock.
             FileLock lock = channel.lock();
-
-            FileReader fr = new FileReader(file);
 
             String line;
             String totalStr = "";
 
-            BufferedReader br = new BufferedReader(fr);
+            BufferedReader br = new BufferedReader(new FileReader(file));
 
             String replaceString = "";
-            Stock message = SerializationUtils.deserialize(bytes);
 
             Boolean found = false;
             Integer currentQty = 0;
@@ -67,7 +63,7 @@ public class NewStockConsumer extends DefaultConsumer {
             FileWriter fw = new FileWriter(file);
             fw.write(totalStr);
             fw.close();
-
+            br.close();
             if (lock != null) {
                 lock.release();
             }

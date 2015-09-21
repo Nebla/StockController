@@ -1,16 +1,15 @@
 package Order;
 
+import Util.Util;
 import Error.StockControllerException;
 
-import Util.Util;
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
+import java.nio.channels.FileLock;
+import java.nio.channels.FileChannel;
 
 /**
  * Created by adrian on 20/09/15.
@@ -55,12 +54,10 @@ public class OrderUpdateConsumer extends DefaultConsumer {
             FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
             FileLock lock = channel.lock();
 
-            FileReader fr = new FileReader(file);
-
             String line;
             String totalStr = "";
 
-            BufferedReader br = new BufferedReader(fr);
+            BufferedReader br = new BufferedReader(new FileReader(file));
 
             String replaceString = "";
 
@@ -81,6 +78,8 @@ public class OrderUpdateConsumer extends DefaultConsumer {
             }
 
             if (!found) {
+                br.close();
+
                 // We are trying to update a nonexistent order
                 throw new StockControllerException("The order being updated does not exists in the system");
             } else {
@@ -94,6 +93,7 @@ public class OrderUpdateConsumer extends DefaultConsumer {
             FileWriter fw = new FileWriter(file);
             fw.write(totalStr);
             fw.close();
+            br.close();
 
             if (lock != null) lock.release();
             channel.close();

@@ -1,18 +1,18 @@
 package Simulation;
 
-import Error.StockControllerException;
-import Stock.Stock;
 import Util.Util;
+import Stock.Stock;
+import Error.StockControllerException;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.SerializationUtils;
 
 /**
  * Created by adrian on 16/09/15.
@@ -59,7 +59,4 @@ public class ProviderSimulator {
         System.out.println("Finishing provider simulator");
         System.exit(0);
     }
-
-    /*byte[] data = SerializationUtils.serialize(yourObject);
-    YourObject yourObject = (YourObject) SerializationUtils.deserialize(byte[] data)*/
 }

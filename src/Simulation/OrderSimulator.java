@@ -1,20 +1,19 @@
 package Simulation;
 
-import Order.Order;
 import Util.Util;
+import Order.Order;
+import Error.StockControllerException;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
-import Error.StockControllerException;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.SerializationUtils;
 
 /**
  * Created by adrian on 16/09/15.
@@ -70,14 +69,3 @@ public class OrderSimulator {
         System.exit(0);
     }
 }
-
-
-/*queue - the name of the queue
-durable - true if we are declaring a durable queue (the queue will survive a server restart)
-exclusive - true if we are declaring an exclusive queue (restricted to this connection)
-autoDelete - true if we are declaring an autodelete queue (server will delete it when no longer in use)
-arguments - other properties (construction arguments) for the queue
-
-channel.queueDeclare(queueName, durable, exclusive, autoDelete, arguments);
-channel.queueDeclare(queueName, false, false, false, null);
-*/

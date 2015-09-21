@@ -52,9 +52,7 @@ public class OrderRequestConsumer extends DefaultConsumer {
         try {
             String orderId = new String(bytes);
             Order.OrderStatus status = this.getOrderStatus(orderId);
-
             this.sendStatus(orderId, status);
-
             long deliveryTag = envelope.getDeliveryTag();
             getChannel().basicAck(deliveryTag, true);
         } catch (StockControllerException e) {
@@ -87,19 +85,19 @@ public class OrderRequestConsumer extends DefaultConsumer {
             BufferedReader br = new BufferedReader(new FileReader(file));
 
             Boolean found = false;
-            String status = "NONEXISTENT";
+            Order.OrderStatus status = Order.OrderStatus.NONEXISTENT;
             while (((line = br.readLine()) != null) && !found) {
                 String[] orderInfo = line.split(":");
                 String orderName = orderInfo[0];
                 if (orderName.equals(orderId)) {
-                    status = orderInfo[1];
+                    status = Order.OrderStatus.valueOf(orderInfo[1]);
                     found = true;
                 }
             }
             if (lock != null) lock.release();
             channel.close();
 
-            return Order.OrderStatus.valueOf(status);
+            return status;
         } catch (FileNotFoundException e) {
             throw new StockControllerException("The file where the order is logger doesn't exists");
         } catch (IOException e) {

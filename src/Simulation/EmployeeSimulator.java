@@ -10,7 +10,6 @@ import com.rabbitmq.client.ConnectionFactory;
 
 import java.io.*;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.SerializationUtils;
 

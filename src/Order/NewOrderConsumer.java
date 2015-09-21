@@ -7,9 +7,9 @@ import com.rabbitmq.client.*;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.util.Map;
+import java.nio.channels.FileLock;
+import java.nio.channels.FileChannel;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -109,7 +109,6 @@ public class NewOrderConsumer extends DefaultConsumer {
         FileLock lock = channel.lock();
 
         // We just need to append the new order status, as it's a new one
-        //PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file,true)));
         BufferedWriter bf =new BufferedWriter(new FileWriter(file,true));
         String orderMessage = newOrder.getOrderId() + ":" + newOrder.getOrderStatus() + System.lineSeparator();
         bf.write(orderMessage);
