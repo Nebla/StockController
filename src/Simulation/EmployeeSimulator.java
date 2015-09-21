@@ -51,5 +51,11 @@ public class EmployeeSimulator {
                 e.printStackTrace();
             }
         }
+
+        channel.close();
+        connection.close();
+
+        System.out.println("Finishing employee simulator");
+        System.exit(0);
     }
 }

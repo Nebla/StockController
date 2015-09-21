@@ -18,48 +18,37 @@ import java.util.Date;
 public class OrderAuditoryConsumer extends DefaultConsumer {
 
     private BufferedWriter bufferWriter;
-    private Integer flushInterval;
-    private Date lastFlush;
     private DateFormat dateFormatter;
 
     public OrderAuditoryConsumer(Channel channel) {
         super(channel);
     }
 
-    public void setFileParams(String name, Integer interval) throws IOException {
-
-        flushInterval = interval;
-
+    public void setFileName(String name) throws IOException {
         File logFile = new File(name);
         FileWriter fileWriter = new FileWriter(logFile.getName(), true);
         bufferWriter = new BufferedWriter(fileWriter);
 
         dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        lastFlush = new Date();
     }
 
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) throws IOException {
 
-            Order order = SerializationUtils.deserialize(bytes);
+        Order order = SerializationUtils.deserialize(bytes);
 
-            String orderMessage = "Order Id: " + order.getOrderId() + " - Prodcuct Id: " + order.getProductId() + " Quantity: " + order.getProductQty();
-            String stringDate = dateFormatter.format(new Date());
-            String logEntrance = stringDate + " " + orderMessage;
-            bufferWriter.write(logEntrance);
-            bufferWriter.newLine();
+        String orderMessage = "Order Id: " + order.getOrderId() + " - Prodcuct Id: " + order.getProductId() + " Quantity: " + order.getProductQty();
+        String stringDate = dateFormatter.format(new Date());
+        String logEntrance = stringDate + " " + orderMessage;
 
-            if (((new Date().getTime() - lastFlush.getTime()) / 1000) > flushInterval) {
-                bufferWriter.flush();
-                lastFlush = new Date();
-            }
+        System.out.println("Logging: "+logEntrance);
+        bufferWriter.write(logEntrance);
+        bufferWriter.newLine();
 
-            long deliveryTag = envelope.getDeliveryTag();
-            getChannel().basicAck(deliveryTag, true);
+        bufferWriter.flush();
 
-        /*finally {
-            bufferWriter.flush();
-            bufferWriter.close();
-        }*/
+        long deliveryTag = envelope.getDeliveryTag();
+        getChannel().basicAck(deliveryTag, true);
+
     }
 
     public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {

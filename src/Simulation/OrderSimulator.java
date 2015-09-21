@@ -50,7 +50,7 @@ public class OrderSimulator {
                 sentOrders++;
                 Random generator = new Random();
                 Integer qty = generator.nextInt(5) + 1;
-                String product = RandomStringUtils.randomAlphabetic(1);
+                String product = RandomStringUtils.randomAlphabetic(1).toUpperCase();
                 Order order = new Order(orderId.toString(), product, qty);
                 System.out.println("Creating order " + order.getOrderId() + " - " + order.getProductId()+ ":" + order.getProductQty());
                 channel.basicPublish("", queueName, null, SerializationUtils.serialize(order));
@@ -62,6 +62,12 @@ public class OrderSimulator {
                 e.printStackTrace();
             }
         }
+
+        channel.close();
+        connection.close();
+
+        System.out.println("Finishing order simulations");
+        System.exit(0);
     }
 }
 

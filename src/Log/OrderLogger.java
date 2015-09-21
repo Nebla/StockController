@@ -32,10 +32,6 @@ public class OrderLogger {
             System.err.println("Log file name key missing, using default value \"orders.log\"");
             logFileName = "order.log";
         }
-        Integer flushInteval = Integer.parseInt(properties.get("flushInterval"));
-        if (flushInteval == 0) {
-            flushInteval = 5;
-        }
 
         File logFile = new File(logFileName);
 
@@ -52,10 +48,9 @@ public class OrderLogger {
             channel.queueDeclare(queueName, false, false, false, null);
 
             OrderAuditoryConsumer consumer = new OrderAuditoryConsumer(channel);
-            consumer.setFileParams(logFileName, flushInteval);
+            consumer.setFileName(logFileName);
 
-            boolean autoAck = false;
-            channel.basicConsume(queueName, autoAck, consumer);
+            channel.basicConsume(queueName, false, consumer);
 
         } catch (IOException e) {
             e.printStackTrace();

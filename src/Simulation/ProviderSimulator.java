@@ -39,7 +39,7 @@ public class ProviderSimulator {
         Integer providerIterations = Integer.parseInt(simulationValues.get("stockProviderIterations"));
 
         for (int i=0; i < providerIterations; ++i) {
-            String productId = RandomStringUtils.randomAlphabetic(1);
+            String productId = RandomStringUtils.randomAlphabetic(1).toUpperCase();
 
             System.out.println("Adding stock for product " + productId);
 
@@ -53,7 +53,11 @@ public class ProviderSimulator {
             }
         }
 
+        channel.close();
+        connection.close();
 
+        System.out.println("Finishing provider simulator");
+        System.exit(0);
     }
 
     /*byte[] data = SerializationUtils.serialize(yourObject);

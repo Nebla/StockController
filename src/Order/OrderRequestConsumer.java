@@ -4,6 +4,7 @@ import Util.Util;
 import com.rabbitmq.client.*;
 
 import Error.StockControllerException;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -50,7 +51,7 @@ public class OrderRequestConsumer extends DefaultConsumer {
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) {
         try {
             String orderId = new String(bytes);
-            String status = this.getOrderStatus(orderId);
+            Order.OrderStatus status = this.getOrderStatus(orderId);
 
             this.sendStatus(orderId, status);
 
@@ -63,16 +64,16 @@ public class OrderRequestConsumer extends DefaultConsumer {
         }
     }
 
-    public void sendStatus(String orderId, String status) throws StockControllerException {
+    public void sendStatus(String orderId, Order.OrderStatus status) throws StockControllerException {
         try {
-            String message = "Order " + orderId + " " + status;
-            responseChannel.basicPublish("", responseQueueName, null, message.getBytes());
+            OrderStatusMessage message = new OrderStatusMessage(orderId, status);
+            responseChannel.basicPublish("", responseQueueName, null, SerializationUtils.serialize(message));
         } catch (IOException e) {
             throw new StockControllerException("I/O Exception");
         }
     }
 
-    public String getOrderStatus (String orderId) throws StockControllerException {
+    public Order.OrderStatus getOrderStatus (String orderId) throws StockControllerException {
         try {
             // Get the file the order is logged
             Integer orderFileId = Integer.parseInt(orderId) % numberOrderFiles;
@@ -86,7 +87,7 @@ public class OrderRequestConsumer extends DefaultConsumer {
             BufferedReader br = new BufferedReader(new FileReader(file));
 
             Boolean found = false;
-            String status = "";
+            String status = "NONEXISTENT";
             while (((line = br.readLine()) != null) && !found) {
                 String[] orderInfo = line.split(":");
                 String orderName = orderInfo[0];
@@ -98,7 +99,7 @@ public class OrderRequestConsumer extends DefaultConsumer {
             if (lock != null) lock.release();
             channel.close();
 
-            return status;
+            return Order.OrderStatus.valueOf(status);
         } catch (FileNotFoundException e) {
             throw new StockControllerException("The file where the order is logger doesn't exists");
         } catch (IOException e) {

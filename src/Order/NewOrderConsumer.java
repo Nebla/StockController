@@ -123,6 +123,7 @@ public class NewOrderConsumer extends DefaultConsumer {
         try {
             Order newOrder = SerializationUtils.deserialize(bytes);
 
+            System.out.println("Received order: "+newOrder.getOrderId());
             // Send the order to auditory
             this.sendAuditory(newOrder);
 

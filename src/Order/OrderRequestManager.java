@@ -25,10 +25,10 @@ public class OrderRequestManager {
     }
 
     private static void receiveAndUpdateOrders() throws StockControllerException {
-        String[] propertiesName = {"queueHost","updateOrderQueueName"};
+        String[] propertiesName = {"queueHost","orderRequestQueueName"};
         Map<String, String> queueNames = Util.getProperties(propertiesName);
         String queueHost = queueNames.get("queueHost");
-        String queueName = queueNames.get("updateOrderQueueName");
+        String queueName = queueNames.get("orderRequestQueueName");
 
         try {
             ConnectionFactory factory = new ConnectionFactory();
@@ -38,6 +38,7 @@ public class OrderRequestManager {
             channel.queueDeclare(queueName, false, false, false, null);
 
             OrderRequestConsumer consumer = new OrderRequestConsumer(channel);
+            consumer.init();
             channel.basicConsume(queueName, false, consumer);
         } catch (TimeoutException e) {
             throw new StockControllerException("There was a timeout while trying to connect to queue server");
