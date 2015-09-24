@@ -5,23 +5,37 @@ import subprocess
 import os
 
 def main():
-    exec_file = sys.argv[1]
     pids = []
 
-    for line in open(exec_file):
+    amounts = []
+    for line in open("launcherOptions"):
         line = line.strip("\n")
-        print line
-        arg_list = line.split(" ")
-        print arg_list
-        process = subprocess.Popen(arg_list, shell=False)
-        pids.append(str(process.pid))
+        arg_list = line.split(":")
+        amounts.append(arg_list[1])
 
-    prompt = "Write MONDONGO to stop processes\n"
-    while raw_input(prompt) != "MONDONGO":
+    print(amounts)
+
+    count = 0
+    for line in open("launcherScripts"):
+        line = line.strip("\n")
+        arg_list = line.split(" ")
+
+        qty = amounts[count]
+        print("Launching " + qty + " " + line)
+        qty = int(qty)-1
+
+        for i in range(0, qty):
+            process = subprocess.Popen(arg_list, shell=True)
+            pids.append(str(process.pid))
+
+        count += 1
+
+    prompt = "Write Q\n"
+    while raw_input(prompt) != "Q":
         continue
 
     for pid in pids:
-        print "Killing process with pid " + pid
+        print("Killing process with pid " + pid)
         os.system("kill -2 " + pid)
 
 
