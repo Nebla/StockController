@@ -9,6 +9,7 @@
 
 
     <property name="order-logger-main-class"  value="Log.OrderLogger"/>
+    <property name="order-logger-jar-name"  value="OrderLogger"/>
     <property name="new-order-main-class"  value="Order.NewOrderManager"/>
     <property name="order-request-main-class"  value="Order.OrderRequestManager"/>
     <property name="order-update-main-class"  value="Order.OrderUpdateManager"/>
@@ -45,6 +46,18 @@
                destdir="${classes.dir}" 
                classpathref="classpath">
 	</javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+
+        <jar destfile="${jar.dir}/${order-logger-jar-name}.jar" 
+             basedir="${classes.dir}">
+            <manifest>
+                <attribute name="order-logger-main-class" 
+                           value="${order-logger-main-class}"/>
+            </manifest>
+        </jar>
     </target>
 
 </project>

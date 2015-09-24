@@ -1,0 +1,2 @@
+java -cp lib/rabbitmq-client.jar:lib/commons-lang3-3.4.jar:build/jar/OrderLogger.jar Log.OrderLogger
+java -cp lib/rabbitmq-client.jar:lib/commons-lang3-3.4.jar:build/jar/OrderLogger.jar Log.OrderLogger
