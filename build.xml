@@ -6,13 +6,14 @@
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="jar.dir"     value="${build.dir}/jar"/>
 
-    <property name="main-class"  value="oata.HelloWorld"/>
+    <property name="main-class"  value="Log.OrderLogger"/>
 
-    <property name="lib.dir"     value="libs"/>
+    <property name="lib.dir"     value="lib"/>
 
     <path id="classpath">
         <fileset dir="${lib.dir}" includes="**/*.jar"/>
     </path>
+
 
     <target name="clean">
         <delete dir="${build.dir}"/>
@@ -20,8 +21,13 @@
 
     <target name="compile">
         <mkdir dir="${classes.dir}"/>
-        <javac srcdir="${src.dir}" destdir="${classes.dir}"/>
+        <javac includeantruntime="false" 
+               srcdir="${src.dir}" 
+               destdir="${classes.dir}" 
+               classpathref="classpath"/>
+
     </target>
+
 
     <target name="jar" depends="compile">
         <mkdir dir="${jar.dir}"/>
