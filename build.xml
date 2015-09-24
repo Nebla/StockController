@@ -1,14 +1,24 @@
 <project name="StockController" basedir="." default="main">
 
     <property name="src.dir"     value="src"/>
-
     <property name="build.dir"   value="build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="jar.dir"     value="${build.dir}/jar"/>
-
-    <property name="main-class"  value="Log.OrderLogger"/>
-
     <property name="lib.dir"     value="lib"/>
+    <property name="config.dir"     value="Config"/>
+
+
+    <property name="order-logger-main-class"  value="Log.OrderLogger"/>
+    <property name="new-order-main-class"  value="Order.NewOrderManager"/>
+    <property name="order-request-main-class"  value="Order.OrderRequestManager"/>
+    <property name="order-update-main-class"  value="Order.OrderUpdateManager"/>
+    <property name="stock-manager-main-class"  value="Stock.StockManager"/>
+
+    <property name="sim-client-main-class"  value="Simulation.OrderSimulator"/>
+    <property name="sim-provider-main-class"  value="Simulation.ProviderSimulator"/>
+    <property name="sim-employee-main-class"  value="Simulation.EmployeeSimulator"/>
+    <property name="sim-request-main-class"  value="Simulation.RequestSimulator"/>
+
 
     <path id="classpath">
         <fileset dir="${lib.dir}" includes="**/*.jar"/>
@@ -19,32 +29,23 @@
         <delete dir="${build.dir}"/>
     </target>
 
+    <copy todir="${classes.dir}/${lib.dir}" flatten="true">
+        <fileset dir="${lib.dir}"/>
+    </copy>
+
+    <copy todir="${classes.dir}/${config.dir}" flatten="true">
+        <fileset dir="${config.dir}"/>
+    </copy>
+
     <target name="compile">
         <mkdir dir="${classes.dir}"/>
-        <javac includeantruntime="false" 
+
+        <javac includeantruntime="false"
                srcdir="${src.dir}" 
                destdir="${classes.dir}" 
-               classpathref="classpath"/>
-
+               classpathref="classpath">
+	</javac>
     </target>
-
-
-    <target name="jar" depends="compile">
-        <mkdir dir="${jar.dir}"/>
-        <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
-            <manifest>
-                <attribute name="Main-Class" value="${main-class}"/>
-            </manifest>
-        </jar>
-    </target>
-
-    <target name="run" depends="jar">
-        <java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
-    </target>
-
-    <target name="clean-build" depends="clean,jar"/>
-
-    <target name="main" depends="clean,run"/>
 
 </project>
 

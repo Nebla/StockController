@@ -2,13 +2,13 @@ package Stock;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
-import java.nio.channels.FileLock;
 import java.nio.channels.FileChannel;
-import org.apache.commons.lang3.SerializationUtils;
+import java.nio.channels.FileLock;
 
 /**
  * Created by adrian on 19/09/15.
@@ -23,7 +23,7 @@ public class NewStockConsumer extends DefaultConsumer {
 
         try {
             Stock message = SerializationUtils.deserialize(bytes);
-
+            System.out.println("Updating stock for product: "+message.getProductId()+" in " +message.getProductQty());
             File file = new File("StockFile");
             FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
 

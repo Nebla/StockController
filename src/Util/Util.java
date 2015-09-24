@@ -3,11 +3,11 @@ package Util;
 import Error.StockControllerException;
 
 import java.io.*;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Properties;
-import java.nio.channels.FileLock;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by adrian on 19/09/15.

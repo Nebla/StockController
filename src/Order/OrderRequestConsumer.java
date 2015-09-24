@@ -1,9 +1,8 @@
 package Order;
 
+import Error.StockControllerException;
 import Util.Util;
 import com.rabbitmq.client.*;
-
-import Error.StockControllerException;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
@@ -51,6 +50,7 @@ public class OrderRequestConsumer extends DefaultConsumer {
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) {
         try {
             String orderId = new String(bytes);
+            System.out.println("Receiver request for order: "+orderId);
             Order.OrderStatus status = this.getOrderStatus(orderId);
             this.sendStatus(orderId, status);
             long deliveryTag = envelope.getDeliveryTag();

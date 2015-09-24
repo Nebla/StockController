@@ -1,12 +1,15 @@
 package Log;
 
-import java.io.*;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
-
 import Error.StockControllerException;
 import Util.Util;
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by adrian on 16/09/15.

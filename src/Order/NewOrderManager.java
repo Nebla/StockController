@@ -1,14 +1,13 @@
 package Order;
 
-import Util.Util;
 import Error.StockControllerException;
-
+import Util.Util;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
-import java.util.Map;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 /**

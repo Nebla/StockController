@@ -1,19 +1,18 @@
 package Simulation;
 
-import Util.Util;
-import Order.Order;
 import Error.StockControllerException;
-
+import Order.Order;
+import Util.Util;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.SerializationUtils;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.SerializationUtils;
 
 /**
  * Created by adrian on 16/09/15.

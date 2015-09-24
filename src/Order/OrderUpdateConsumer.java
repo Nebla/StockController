@@ -1,15 +1,17 @@
 package Order;
 
-import Util.Util;
 import Error.StockControllerException;
-
-import com.rabbitmq.client.*;
+import Util.Util;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
-import java.util.Map;
-import java.nio.channels.FileLock;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.Map;
 
 /**
  * Created by adrian on 20/09/15.
@@ -32,6 +34,7 @@ public class OrderUpdateConsumer extends DefaultConsumer {
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) {
         try {
             Order order = SerializationUtils.deserialize(bytes);
+            System.out.println("Updating order: "+order.getOrderId());
             this.updateOrder(order);
 
             long deliveryTag = envelope.getDeliveryTag();

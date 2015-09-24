@@ -1,15 +1,14 @@
 package Order;
 
-import Util.Util;
 import Error.StockControllerException;
-
+import Util.Util;
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
-import java.util.Map;
-import java.nio.channels.FileLock;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 /**

@@ -1,7 +1,6 @@
 package Log;
 
 import Order.Order;
-
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.SerializationUtils;
 
