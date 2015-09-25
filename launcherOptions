@@ -1,4 +1,4 @@
-NewOrderManagers: 2
+NewOrderManagers: 3
 OrderRequestManager: 4
 OrderUpdateManager: 5
 StockManager: 10

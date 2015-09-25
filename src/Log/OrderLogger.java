@@ -43,6 +43,7 @@ public class OrderLogger {
                 logFile.createNewFile();
             }
 
+            System.out.println("Starting auditory logger");
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost(queueHost);
             Connection connection = factory.newConnection();

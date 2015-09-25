@@ -83,6 +83,9 @@ public class OrderUpdateConsumer extends DefaultConsumer {
             if (!found) {
                 br.close();
 
+	            lock.release();
+	            channel.close();
+
                 // We are trying to update a nonexistent order
                 throw new StockControllerException("The order being updated does not exists in the system");
             } else {

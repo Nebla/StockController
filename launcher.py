@@ -10,8 +10,8 @@ def main():
     amounts = []
     for line in open("launcherOptions"):
         line = line.strip("\n")
-        arg_list = line.split(":")
-        amounts.append(arg_list[1])
+        arg_amount_list = line.split(":")
+        amounts.append(arg_amount_list[1])
 
     print(amounts)
 
@@ -21,11 +21,9 @@ def main():
         arg_list = line.split(" ")
 
         qty = amounts[count]
-        print("Launching " + qty + " " + line)
-        qty = int(qty)-1
-
-        for i in range(0, qty):
-            process = subprocess.Popen(arg_list, shell=True)
+        numericQty = int(qty)
+        for i in range(0, numericQty):
+            process = subprocess.Popen(arg_list, shell=False)
             pids.append(str(process.pid))
 
         count += 1

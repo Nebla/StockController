@@ -64,9 +64,9 @@ public class NewStockConsumer extends DefaultConsumer {
             fw.write(totalStr);
             fw.close();
             br.close();
-            if (lock != null) {
-                lock.release();
-            }
+            
+	    lock.release();
+            
             channel.close();
 
             long deliveryTag = envelope.getDeliveryTag();

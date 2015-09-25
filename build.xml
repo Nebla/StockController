@@ -7,7 +7,6 @@
     <property name="lib.dir"     value="lib"/>
     <property name="config.dir"     value="Config"/>
 
-
     <property name="order-logger-main-class"  value="Log.OrderLogger"/>
     <property name="order-logger-jar-name"  value="OrderLogger"/>
 
@@ -52,6 +51,10 @@
         <fileset dir="${config.dir}"/>
     </copy>
 
+    <copy todir="${jar.dir}/${config.dir}" flatten="true">
+        <fileset dir="${config.dir}"/>
+    </copy>
+
     <target name="compile">
         <mkdir dir="${classes.dir}"/>
 
@@ -71,6 +74,7 @@
                 <attribute name="order-logger-main-class" 
                            value="${order-logger-main-class}"/>
             </manifest>
+
         </jar>
 
         <jar destfile="${jar.dir}/${new-order-jar-name}.jar" 
