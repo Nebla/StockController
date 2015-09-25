@@ -91,7 +91,7 @@ public class NewOrderConsumer extends DefaultConsumer {
             fw.close();
         }
 
-        if (lock != null) lock.release();
+        lock.release();
         channel.close();
 
         return shouldUpdate;

@@ -21,6 +21,12 @@ public class RequestSimulator {
 
     public static void main(String[] args) throws IOException, TimeoutException, StockControllerException {
 
+	try {
+                Thread.sleep(10*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
         missingOrders = new ArrayList<String>();
 
         String[] simulationPropertiesName = {"checkStatusInterval","maxNumberOfOrders"};

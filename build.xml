@@ -7,18 +7,32 @@
     <property name="lib.dir"     value="lib"/>
     <property name="config.dir"     value="Config"/>
 
-
     <property name="order-logger-main-class"  value="Log.OrderLogger"/>
+    <property name="order-logger-jar-name"  value="OrderLogger"/>
+
     <property name="new-order-main-class"  value="Order.NewOrderManager"/>
+    <property name="new-order-jar-name"  value="NewOrderManager"/>
+
     <property name="order-request-main-class"  value="Order.OrderRequestManager"/>
+    <property name="order-request-jar-name"  value="OrderRequestManager"/>
+
     <property name="order-update-main-class"  value="Order.OrderUpdateManager"/>
+    <property name="order-update-jar-name"  value="OrderUpdateManager"/>
+
     <property name="stock-manager-main-class"  value="Stock.StockManager"/>
+    <property name="stock-manager-jar-name"  value="StockManager"/>
 
     <property name="sim-client-main-class"  value="Simulation.OrderSimulator"/>
-    <property name="sim-provider-main-class"  value="Simulation.ProviderSimulator"/>
-    <property name="sim-employee-main-class"  value="Simulation.EmployeeSimulator"/>
-    <property name="sim-request-main-class"  value="Simulation.RequestSimulator"/>
+    <property name="sim-client-jar-name"  value="OrderSimulator"/>
 
+    <property name="sim-provider-main-class"  value="Simulation.ProviderSimulator"/>
+    <property name="sim-provider-jar-name"  value="ProviderSimulator"/>
+
+    <property name="sim-employee-main-class"  value="Simulation.EmployeeSimulator"/>
+    <property name="sim-employee-jar-name"  value="EmployeeSimulator"/>
+    
+    <property name="sim-request-main-class"  value="Simulation.RequestSimulator"/>
+    <property name="sim-request-jar-name"  value="RequestSimulator"/>
 
     <path id="classpath">
         <fileset dir="${lib.dir}" includes="**/*.jar"/>
@@ -37,6 +51,10 @@
         <fileset dir="${config.dir}"/>
     </copy>
 
+    <copy todir="${jar.dir}/${config.dir}" flatten="true">
+        <fileset dir="${config.dir}"/>
+    </copy>
+
     <target name="compile">
         <mkdir dir="${classes.dir}"/>
 
@@ -46,6 +64,85 @@
                classpathref="classpath">
 	</javac>
     </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+
+        <jar destfile="${jar.dir}/${order-logger-jar-name}.jar" 
+             basedir="${classes.dir}">
+            <manifest>
+                <attribute name="order-logger-main-class" 
+                           value="${order-logger-main-class}"/>
+            </manifest>
+
+        </jar>
+
+        <jar destfile="${jar.dir}/${new-order-jar-name}.jar" 
+             basedir="${classes.dir}">
+            <manifest>
+                <attribute name="new-order-main-class" 
+                           value="${new-order-main-class}"/>
+            </manifest>
+        </jar>
+
+        <jar destfile="${jar.dir}/${order-request-jar-name}.jar" 
+             basedir="${classes.dir}">
+            <manifest>
+                <attribute name="order-request-main-class" 
+                           value="${order-request-main-class}"/>
+            </manifest>
+        </jar>
+
+
+        <jar destfile="${jar.dir}/${order-update-jar-name}.jar" 
+             basedir="${classes.dir}">
+            <manifest>
+                <attribute name="order-update-main-class" 
+                           value="${order-update-main-class}"/>
+            </manifest>
+        </jar>
+
+        <jar destfile="${jar.dir}/${stock-manager-jar-name}.jar" 
+             basedir="${classes.dir}">
+            <manifest>
+                <attribute name="stock-manager-main-class" 
+                           value="${stock-manager-main-class}"/>
+            </manifest>
+        </jar>
+
+        <jar destfile="${jar.dir}/${sim-client-jar-name}.jar" 
+             basedir="${classes.dir}">
+            <manifest>
+                <attribute name="sim-client-main-class" 
+                           value="${sim-client-main-class}"/>
+            </manifest>
+        </jar>
+
+        <jar destfile="${jar.dir}/${sim-provider-jar-name}.jar" 
+             basedir="${classes.dir}">
+            <manifest>
+                <attribute name="sim-provider-main-class" 
+                           value="${sim-provider-main-class}"/>
+            </manifest>
+        </jar>    
+
+        <jar destfile="${jar.dir}/${sim-employee-jar-name}.jar" 
+             basedir="${classes.dir}">
+            <manifest>
+                <attribute name="sim-employee-main-class" 
+                           value="${sim-employee-main-class}"/>
+            </manifest>
+        </jar>    
+
+        <jar destfile="${jar.dir}/${sim-request-jar-name}.jar" 
+             basedir="${classes.dir}">
+            <manifest>
+                <attribute name="sim-request-main-class" 
+                           value="${sim-request-main-class}"/>
+            </manifest>
+        </jar>    
+
+</target>
 
 </project>
 
