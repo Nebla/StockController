@@ -19,7 +19,6 @@ import java.util.concurrent.TimeoutException;
 public class ProviderSimulator {
 
     public static void main(String[] args) throws IOException, TimeoutException, StockControllerException {
-
         String[] propertiesName = {"queueHost","stockQueueName"};
         Map<String, String> queueNames = PropertiesManager.getProperties(propertiesName);
         String queueHost = queueNames.get("queueHost");
@@ -51,10 +50,8 @@ public class ProviderSimulator {
                 e.printStackTrace();
             }
         }
-
         channel.close();
         connection.close();
-
         System.out.println("Finishing provider simulator");
         System.exit(0);
     }

@@ -25,7 +25,6 @@ public class OrderLogger {
     }
 
     private static void startLogging() throws StockControllerException {
-
         String[] propertiesName = {"queueHost","auditoryQueueName","orderLogFile","flushInterval"};
         Map<String, String> properties = PropertiesManager.getProperties(propertiesName);
         String queueHost = properties.get("queueHost");
@@ -63,4 +62,3 @@ public class OrderLogger {
         }
     }
 }
-
