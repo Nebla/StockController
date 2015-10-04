@@ -12,7 +12,7 @@ import java.util.Properties;
 /**
  * Created by adrian on 19/09/15.
  */
-public class Util {
+public class PropertiesManager {
 
     public static Map<String, String> getProperties(String filename, String[] keys) throws StockControllerException {
         FileLock lock = null;
@@ -30,9 +30,9 @@ public class Util {
 
             if (!file.exists()) {
                 System.err.println("Config file " + filename + " missing");
-		lock.release();
+		        lock.release();
             	channel.close();
-		throw new StockControllerException("Missing configuration file");
+		        throw new StockControllerException("Missing configuration file");
             } else {
                 input = new FileInputStream(filename);
                 prop.load(input);

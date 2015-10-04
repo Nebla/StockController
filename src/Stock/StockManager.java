@@ -1,7 +1,7 @@
 package Stock;
 
 import Error.StockControllerException;
-import Util.Util;
+import Util.PropertiesManager;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -25,7 +25,7 @@ public class StockManager {
 
     private static void startUpdating() throws StockControllerException {
         String[] propertiesName = {"queueHost","stockQueueName"};
-        Map<String, String> queueNames = Util.getProperties(propertiesName);
+        Map<String, String> queueNames = PropertiesManager.getProperties(propertiesName);
         String queueHost = queueNames.get("queueHost");
         String queueName = queueNames.get("stockQueueName");
 

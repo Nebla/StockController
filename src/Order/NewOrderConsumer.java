@@ -1,7 +1,7 @@
 package Order;
 
 import Error.StockControllerException;
-import Util.Util;
+import Util.PropertiesManager;
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -27,7 +27,7 @@ public class NewOrderConsumer extends DefaultConsumer {
     public void init() throws StockControllerException {
         try {
             String[] propertiesNames = {"queueHost", "auditoryQueueName", "orderFiles"};
-            Map<String, String> propertiesValues = Util.getProperties(propertiesNames);
+            Map<String, String> propertiesValues = PropertiesManager.getProperties(propertiesNames);
 
             numberOrderFiles = Integer.parseInt(propertiesValues.get("orderFiles"));
 

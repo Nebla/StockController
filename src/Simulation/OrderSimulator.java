@@ -2,7 +2,7 @@ package Simulation;
 
 import Error.StockControllerException;
 import Order.Order;
-import Util.Util;
+import Util.PropertiesManager;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -22,7 +22,7 @@ public class OrderSimulator {
     public static void main(String[] args) throws IOException, TimeoutException, StockControllerException {
 
         String[] propertiesName = {"queueHost","newOrderQueueName"};
-        Map<String, String> queueNames = Util.getProperties(propertiesName);
+        Map<String, String> queueNames = PropertiesManager.getProperties(propertiesName);
         String queueHost = queueNames.get("queueHost");
         String queueName = queueNames.get("newOrderQueueName");
 
@@ -34,7 +34,7 @@ public class OrderSimulator {
         channel.queueDeclare(queueName, false, false, false, null);
 
         String[] simulationPropertiesName = {"maxNumberOfOrders","maxOrderBurst","interBurstsInterval"};
-        Map<String, String> simulationValues = Util.getSimulationProperties(simulationPropertiesName);
+        Map<String, String> simulationValues = PropertiesManager.getSimulationProperties(simulationPropertiesName);
         Integer maxOrders = Integer.parseInt(simulationValues.get("maxNumberOfOrders"));
         Integer orderBurst = Integer.parseInt(simulationValues.get("maxOrderBurst"));
         Integer burstsInterval = Integer.parseInt(simulationValues.get("interBurstsInterval"));

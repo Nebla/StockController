@@ -3,7 +3,7 @@ package Simulation;
 import Error.StockControllerException;
 import Order.Order;
 import Order.OrderStatusMessage;
-import Util.Util;
+import Util.PropertiesManager;
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -30,12 +30,12 @@ public class RequestSimulator {
         missingOrders = new ArrayList<String>();
 
         String[] simulationPropertiesName = {"checkStatusInterval","maxNumberOfOrders"};
-        Map<String, String> simulationValues = Util.getSimulationProperties(simulationPropertiesName);
+        Map<String, String> simulationValues = PropertiesManager.getSimulationProperties(simulationPropertiesName);
         Integer interval = Integer.parseInt(simulationValues.get("checkStatusInterval"));
         Integer maxOrders = Integer.parseInt(simulationValues.get("maxNumberOfOrders"));
 
         String[] propertiesName = {"queueHost","orderRequestQueueName","orderResponseQueueName"};
-        Map<String, String> queueNames = Util.getProperties(propertiesName);
+        Map<String, String> queueNames = PropertiesManager.getProperties(propertiesName);
         String queueHost = queueNames.get("queueHost");
         String requestQueueName = queueNames.get("orderRequestQueueName");
         String responseQueueName = queueNames.get("orderResponseQueueName");

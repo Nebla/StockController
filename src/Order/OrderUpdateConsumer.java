@@ -1,7 +1,7 @@
 package Order;
 
 import Error.StockControllerException;
-import Util.Util;
+import Util.PropertiesManager;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
@@ -26,7 +26,7 @@ public class OrderUpdateConsumer extends DefaultConsumer {
 
     public void init () throws StockControllerException {
         String[] propertiesNames = {"orderFiles"};
-        Map<String, String> propertiesValues = Util.getProperties(propertiesNames);
+        Map<String, String> propertiesValues = PropertiesManager.getProperties(propertiesNames);
 
         numberOrderFiles = Integer.parseInt(propertiesValues.get("orderFiles"));
     }

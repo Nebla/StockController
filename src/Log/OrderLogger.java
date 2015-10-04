@@ -1,7 +1,7 @@
 package Log;
 
 import Error.StockControllerException;
-import Util.Util;
+import Util.PropertiesManager;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -27,7 +27,7 @@ public class OrderLogger {
     private static void startLogging() throws StockControllerException {
 
         String[] propertiesName = {"queueHost","auditoryQueueName","orderLogFile","flushInterval"};
-        Map<String, String> properties = Util.getProperties(propertiesName);
+        Map<String, String> properties = PropertiesManager.getProperties(propertiesName);
         String queueHost = properties.get("queueHost");
         String queueName = properties.get("auditoryQueueName");
         String logFileName = properties.get("orderLogFile");
