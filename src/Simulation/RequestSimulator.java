@@ -21,20 +21,20 @@ public class RequestSimulator {
 
     public static void main(String[] args) throws IOException, TimeoutException, StockControllerException {
 
-	try {
-                Thread.sleep(10*1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            Thread.sleep(10 * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         missingOrders = new ArrayList<String>();
 
-        String[] simulationPropertiesName = {"checkStatusInterval","maxNumberOfOrders"};
+        String[] simulationPropertiesName = {"checkStatusInterval", "maxNumberOfOrders"};
         Map<String, String> simulationValues = PropertiesManager.getSimulationProperties(simulationPropertiesName);
         Integer interval = Integer.parseInt(simulationValues.get("checkStatusInterval"));
         Integer maxOrders = Integer.parseInt(simulationValues.get("maxNumberOfOrders"));
 
-        String[] propertiesName = {"queueHost","orderRequestQueueName","orderResponseQueueName"};
+        String[] propertiesName = {"queueHost", "orderRequestQueueName", "orderResponseQueueName"};
         Map<String, String> queueNames = PropertiesManager.getProperties(propertiesName);
         String queueHost = queueNames.get("queueHost");
         String requestQueueName = queueNames.get("orderRequestQueueName");
@@ -51,7 +51,7 @@ public class RequestSimulator {
         Consumer consumer = new DefaultConsumer(channel) {
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] bytes)
                     throws IOException {
-                OrderStatusMessage  response = SerializationUtils.deserialize(bytes);
+                OrderStatusMessage response = SerializationUtils.deserialize(bytes);
                 System.out.println("Order " + response.getOrderId() + " Status " + response.getOrderStatus());
                 if (response.getOrderStatus() == Order.OrderStatus.ACCEPTED) {
                     addMissingOrder(response.getOrderId());
@@ -66,8 +66,7 @@ public class RequestSimulator {
                 orderId = missingOrders.get(0);
                 missingOrders.remove(0);
                 System.out.println("Requesting order " + orderId + " again");
-            }
-            else {
+            } else {
                 System.out.println("Requesting order " + orderId + " for first time");
                 lastOrder++;
             }
@@ -76,7 +75,7 @@ public class RequestSimulator {
             channel.basicConsume(responseQueueName, true, consumer);
 
             try {
-                Thread.sleep(interval*1000);
+                Thread.sleep(interval * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

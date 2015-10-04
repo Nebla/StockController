@@ -48,19 +48,21 @@ public class OrderUpdateConsumer extends DefaultConsumer {
     }
 
     public void updateOrder (Order order) throws StockControllerException {
+        BufferedReader br = null;
+        FileChannel channel = null;
         try {
             // Get the file in which the order is logged
             Integer orderFileId = Integer.parseInt(order.getOrderId()) % numberOrderFiles;
             String orderFileName = "Order" + orderFileId;
 
             File file = new File(orderFileName);
-            FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
+            channel = new RandomAccessFile(file, "rw").getChannel();
             FileLock lock = channel.lock();
 
             String line;
             String totalStr = "";
 
-            BufferedReader br = new BufferedReader(new FileReader(file));
+            br = new BufferedReader(new FileReader(file));
 
             String replaceString = "";
 
@@ -80,34 +82,39 @@ public class OrderUpdateConsumer extends DefaultConsumer {
                 totalStr += line + "\n";
             }
 
-            if (!found) {
-                br.close();
-
-	            lock.release();
-	            channel.close();
-
-                // We are trying to update a nonexistent order
-                throw new StockControllerException("The order being updated does not exists in the system");
-            } else {
+            if (found) {
                 if (Order.OrderStatus.ACCEPTED.toString().equals(currentStatus)) {
-                    // We just neec to updates the Accepted orders.
+                    // We just need to updates the Accepted orders.
                     String orderMessage = order.getOrderId() + ":" + order.getOrderStatus();
                     totalStr = totalStr.replaceAll(replaceString, orderMessage);
                 }
+                FileWriter fw = new FileWriter(file);
+                fw.write(totalStr);
+                fw.close();
             }
 
-            FileWriter fw = new FileWriter(file);
-            fw.write(totalStr);
-            fw.close();
-            br.close();
-
-            if (lock != null) lock.release();
-            channel.close();
+            lock.release();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        try {
+            if (br != null) {
+                br.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (channel != null) {
+                channel.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

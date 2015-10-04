@@ -20,19 +20,22 @@ public class NewStockConsumer extends DefaultConsumer {
     }
 
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) {
+        FileWriter fw = null;
+        BufferedReader br = null;
+        FileChannel channel = null;
 
         try {
             Stock message = SerializationUtils.deserialize(bytes);
             System.out.println("Updating stock for product: "+message.getProductId()+" in " +message.getProductQty());
             File file = new File("StockFile");
-            FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
+            channel = new RandomAccessFile(file, "rw").getChannel();
 
             FileLock lock = channel.lock();
 
             String line;
             String totalStr = "";
 
-            BufferedReader br = new BufferedReader(new FileReader(file));
+            br = new BufferedReader(new FileReader(file));
 
             String replaceString = "";
 
@@ -50,6 +53,7 @@ public class NewStockConsumer extends DefaultConsumer {
                 }
                 totalStr += line + "\n";
             }
+            br.close();
 
             if (!found) {
                 // Add the new product
@@ -60,19 +64,29 @@ public class NewStockConsumer extends DefaultConsumer {
                 totalStr = totalStr.replaceAll(replaceString, newValue);
             }
 
-            FileWriter fw = new FileWriter(file);
+            fw = new FileWriter(file);
             fw.write(totalStr);
-            fw.close();
-            br.close();
-            
-	    lock.release();
-            
-            channel.close();
+            lock.release();
 
             long deliveryTag = envelope.getDeliveryTag();
             getChannel().basicAck(deliveryTag, true);
-        }  catch (IOException e) {
-            // The handleDelivery method can't throw an exception
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (fw != null) {
+                fw.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (channel != null) {
+                channel.close();
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

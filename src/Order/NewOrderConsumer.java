@@ -51,70 +51,94 @@ public class NewOrderConsumer extends DefaultConsumer {
         auditoryChannel.basicPublish("", auditoryQueueName, null, SerializationUtils.serialize(order));
     }
 
-    public Boolean checkStock(Order newOrder) throws IOException {
+    public Boolean checkStock(Order newOrder) {
         // Check in the stock file if there is enough stock
-        File file = new File("StockFile");
-        FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
-        FileLock lock = channel.lock();
-        FileReader fr = new FileReader(file);
-
-        BufferedReader br = new BufferedReader(fr);
-        String totalStr = "";
-        String replaceString = "";
-        String newString = "";
-
+        FileChannel channel = null;
         Boolean shouldUpdate = false;
-        String line;
-        while ((line = br.readLine()) != null) {
-            String[] productInfo = line.split(":");
-            String productName = productInfo[0];
-            if (productName.equals(newOrder.getProductId())) {
-                // Check available stock
-                Integer currentQty = Integer.parseInt(productInfo[1]);
-                if (currentQty >= newOrder.getProductQty()) {
-                    shouldUpdate = true;
-                    replaceString = line;
-                    newString = newOrder.getProductId() + ":" + (currentQty - newOrder.getProductQty());
+        try {
+            File file = new File("StockFile");
+            channel = new RandomAccessFile(file, "rw").getChannel();
+            FileLock lock = channel.lock();
+            FileReader fr = new FileReader(file);
+
+            BufferedReader br = new BufferedReader(fr);
+            String totalStr = "";
+            String replaceString = "";
+            String newString = "";
+
+            Boolean enoughStock = true;
+            String line;
+            while (((line = br.readLine()) != null) && enoughStock) {
+                String[] productInfo = line.split(":");
+                String productName = productInfo[0];
+                if (productName.equals(newOrder.getProductId())) {
+                    // Check available stock
+                    Integer currentQty = Integer.parseInt(productInfo[1]);
+                    if (currentQty >= newOrder.getProductQty()) {
+                        shouldUpdate = true;
+                        replaceString = line;
+                        newString = newOrder.getProductId() + ":" + (currentQty - newOrder.getProductQty());
+                    } else {
+                        // There isn't enough stock, we leave stock file as it is and break the cycle
+                        enoughStock = false;
+                    }
                 }
-                else {
-                    // There isn't enough stock, we leave stock file as it is and break the cycle
-                    break;
-                }
+                totalStr += line + "\n";
             }
-            totalStr += line + "\n";
+
+            if (shouldUpdate) {
+                totalStr = totalStr.replaceAll(replaceString, newString);
+                FileWriter fw = new FileWriter(file);
+                fw.write(totalStr);
+                fw.close();
+            }
+
+            lock.release();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        if (shouldUpdate) {
-            totalStr = totalStr.replaceAll(replaceString, newString);
-            FileWriter fw = new FileWriter(file);
-            fw.write(totalStr);
-            fw.close();
+        try {
+            if (channel != null) {
+                channel.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        lock.release();
-        channel.close();
 
         return shouldUpdate;
     }
 
-    public void saveOrderStatus(Order newOrder) throws IOException, StockControllerException {
+    public void saveOrderStatus(Order newOrder) {
+        FileChannel channel = null;
+        try {
+            // Get the file the order is logged
+            Integer orderFileId = Integer.parseInt(newOrder.getOrderId()) % numberOrderFiles;
+            String orderFileName = "Order" + orderFileId;
 
-        // Get the file the order is logged
-        Integer orderFileId = Integer.parseInt(newOrder.getOrderId())%numberOrderFiles;
-        String orderFileName = "Order" + orderFileId;
+            File file = new File(orderFileName);
+            channel = new RandomAccessFile(file, "rw").getChannel();
+            FileLock lock = channel.lock();
 
-        File file = new File(orderFileName);
-        FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
-        FileLock lock = channel.lock();
+            // We just need to append the new order status, as it's a new one
+            BufferedWriter bf = new BufferedWriter(new FileWriter(file, true));
+            String orderMessage = newOrder.getOrderId() + ":" + newOrder.getOrderStatus() + System.lineSeparator();
+            bf.write(orderMessage);
+            bf.close();
 
-        // We just need to append the new order status, as it's a new one
-        BufferedWriter bf =new BufferedWriter(new FileWriter(file,true));
-        String orderMessage = newOrder.getOrderId() + ":" + newOrder.getOrderStatus() + System.lineSeparator();
-        bf.write(orderMessage);
-        bf.close();
+            lock.release();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        if (lock != null) lock.release();
-        channel.close();
+        try {
+            if (channel != null) {
+                channel.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) {
@@ -137,8 +161,6 @@ public class NewOrderConsumer extends DefaultConsumer {
             getChannel().basicAck(deliveryTag, true);
 
         }  catch (IOException e) {
-            e.printStackTrace();
-        } catch (StockControllerException e) {
             e.printStackTrace();
         }
     }

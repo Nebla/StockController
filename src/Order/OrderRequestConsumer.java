@@ -94,7 +94,8 @@ public class OrderRequestConsumer extends DefaultConsumer {
                     found = true;
                 }
             }
-            if (lock != null) lock.release();
+
+            lock.release();
             channel.close();
 
             return status;
