@@ -16,13 +16,13 @@ import java.util.concurrent.TimeoutException;
 public class OrderRequestManager {
     public static void main(String[] argv) {
         try {
-            receiveAndUpdateOrders();
+            receiveOrderRequests();
         } catch (StockControllerException e) {
             e.printStackTrace();
         }
     }
 
-    private static void receiveAndUpdateOrders() throws StockControllerException {
+    private static void receiveOrderRequests() throws StockControllerException {
         String[] propertiesName = {"queueHost","orderRequestQueueName"};
         Map<String, String> queueNames = PropertiesManager.getProperties(propertiesName);
         String queueHost = queueNames.get("queueHost");

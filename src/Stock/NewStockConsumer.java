@@ -20,13 +20,26 @@ public class NewStockConsumer extends DefaultConsumer {
     }
 
     public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) {
+
+        Stock message = SerializationUtils.deserialize(bytes);
+        updateStock(message);
+        long deliveryTag = envelope.getDeliveryTag();
+
+        try {
+            getChannel().basicAck(deliveryTag, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateStock (Stock stock) {
         FileWriter fw = null;
         BufferedReader br = null;
         FileChannel channel = null;
 
         try {
-            Stock message = SerializationUtils.deserialize(bytes);
-            System.out.println("Updating stock for product: "+message.getProductId()+" in " +message.getProductQty());
+
+            System.out.println("Updating stock for product: "+stock.getProductId()+" in " +stock.getProductQty());
             File file = new File("StockFile");
             channel = new RandomAccessFile(file, "rw").getChannel();
 
@@ -45,7 +58,7 @@ public class NewStockConsumer extends DefaultConsumer {
                 String[] productInfo = line.split(":");
                 if ((productInfo.length == 2) && !found) {
                     String productName = productInfo[0];
-                    if (productName.equals(message.getProductId())) {
+                    if (productName.equals(stock.getProductId())) {
                         replaceString = line;
                         currentQty = Integer.parseInt(productInfo[1]);
                         found = true;
@@ -57,10 +70,10 @@ public class NewStockConsumer extends DefaultConsumer {
 
             if (!found) {
                 // Add the new product
-                totalStr += (message.getProductId() + ":" + message.getProductQty() + "\n");
+                totalStr += (stock.getProductId() + ":" + stock.getProductQty() + "\n");
             } else {
                 // Get the amount of the product and add the new ones
-                String newValue = message.getProductId() + ":" + (currentQty + message.getProductQty());
+                String newValue = stock.getProductId() + ":" + (currentQty + stock.getProductQty());
                 totalStr = totalStr.replaceAll(replaceString, newValue);
             }
 
@@ -68,8 +81,6 @@ public class NewStockConsumer extends DefaultConsumer {
             fw.write(totalStr);
             lock.release();
 
-            long deliveryTag = envelope.getDeliveryTag();
-            getChannel().basicAck(deliveryTag, true);
         } catch (IOException e) {
             e.printStackTrace();
         }
